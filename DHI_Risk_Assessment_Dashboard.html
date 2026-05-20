@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DHI Portal — Risk Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: #f7f5f2;
+    color: #1a1a1a;
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .page { max-width: 1080px; margin: 0 auto; padding: 48px 32px 80px; }
+
+  /* ── HEADER ── */
+  .header { margin-bottom: 40px; border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; }
+
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+
+  .report-label {
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #888; font-weight: 500; margin-bottom: 6px;
+  }
+
+  h1 {
+    font-family: 'Lora', serif;
+    font-size: clamp(22px, 3.5vw, 32px);
+    font-weight: 600; line-height: 1.2; color: #1a1a1a;
+  }
+
+  .header-meta {
+    text-align: right; font-size: 13px; color: #666; line-height: 1.9;
+  }
+
+  .alert-pill {
+    display: inline-block; margin-top: 10px;
+    background: #fff0f0; border: 1.5px solid #e74c3c;
+    color: #c0392b; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 5px 14px; border-radius: 20px;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #999; font-weight: 500; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: #ddd; }
+
+  /* ── KPI ROW ── */
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px; background: #ddd;
+    border: 1px solid #ddd; border-radius: 8px;
+    overflow: hidden; margin-bottom: 40px;
+  }
+
+  .kpi {
+    background: #fff; padding: 22px 20px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+
+  .kpi-num {
+    font-family: 'Lora', serif;
+    font-size: 42px; font-weight: 600; line-height: 1;
+  }
+  .kpi-num.red    { color: #e74c3c; }
+  .kpi-num.orange { color: #e67e22; }
+  .kpi-num.slate  { color: #2c3e50; }
+  .kpi-num.gray   { color: #7f8c8d; }
+
+  .kpi-title { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-top: 4px; }
+  .kpi-note  { font-size: 12px; color: #999; }
+
+  /* ── TWO-COL GRID ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 40px; }
+
+  /* ── CARD ── */
+  .card {
+    background: #fff; border: 1px solid #e0ddd8;
+    border-radius: 8px; padding: 24px;
+  }
+
+  .card-title {
+    font-family: 'Lora', serif;
+    font-size: 15px; font-weight: 600; color: #1a1a1a;
+    margin-bottom: 18px;
+  }
+
+  /* ── RISK BADGE ── */
+  .badge {
+    display: inline-block; padding: 3px 11px; border-radius: 4px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .badge.critical { background: #fdf0ef; color: #c0392b; border: 1px solid #f5c6c2; }
+  .badge.high     { background: #fef6ec; color: #d35400; border: 1px solid #f5d5b0; }
+  .badge.medium   { background: #fefbe7; color: #a07a00; border: 1px solid #f0e0a0; }
+  .badge.low      { background: #edfaf1; color: #1e8449; border: 1px solid #a9dfbf; }
+
+  /* ── RISK TABLE ── */
+  .risk-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+  .risk-table thead tr { border-bottom: 2px solid #1a1a1a; }
+
+  .risk-table th {
+    text-align: left; padding: 8px 12px 10px;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #888; font-weight: 500;
+  }
+
+  .risk-table td {
+    padding: 13px 12px;
+    border-bottom: 1px solid #eeebe6;
+    vertical-align: top;
+    color: #333;
+  }
+
+  .risk-table tr:last-child td { border-bottom: none; }
+  .risk-table tbody tr:hover td { background: #faf9f7; }
+
+  .risk-id { font-weight: 700; color: #1a1a1a; font-size: 13px; }
+  .asset-tag {
+    font-size: 11px; color: #666;
+    background: #f2f0ec; padding: 2px 8px; border-radius: 3px;
+    display: inline-block;
+  }
+
+  /* ── SIMPLE BAR ── */
+  .bar-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .bar-item {}
+  .bar-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .bar-top-label { color: #333; }
+  .bar-top-val   { color: #666; font-weight: 500; }
+
+  .bar-track { height: 10px; background: #eeebe6; border-radius: 5px; overflow: hidden; }
+  .bar-fill  {
+    height: 100%; border-radius: 5px;
+    animation: growBar 0.9s cubic-bezier(.4,0,.2,1) both;
+  }
+  @keyframes growBar { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); } }
+
+  /* ── DONUT ── */
+  .donut-wrap { display: flex; align-items: center; gap: 24px; }
+  .legend-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .legend-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .legend-color { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .legend-text  { color: #444; flex: 1; }
+  .legend-count { font-weight: 600; color: #1a1a1a; }
+
+  /* ── HEAT MATRIX ── */
+  .matrix { width: 100%; }
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 72px 1fr 1fr 1fr;
+    gap: 5px;
+  }
+  .m-cell {
+    border-radius: 6px; padding: 10px 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 60px; text-align: center;
+  }
+  .m-label  { font-size: 11px; color: #888; display: flex; align-items: center; justify-content: center; }
+  .m-head   { font-size: 11px; color: #888; text-align: center; padding-bottom: 4px; }
+  .m-critical { background: #fdf0ef; border: 1.5px solid #f5c6c2; }
+  .m-high     { background: #fef6ec; border: 1.5px solid #f5d5b0; }
+  .m-medium   { background: #fefbe7; border: 1.5px solid #f0e0a0; }
+  .m-low      { background: #edfaf1; border: 1.5px solid #a9dfbf; }
+  .m-empty    { background: #f7f5f2; border: 1.5px solid #eeebe6; }
+  .m-level    { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
+  .m-critical .m-level { color: #c0392b; }
+  .m-high     .m-level { color: #d35400; }
+  .m-medium   .m-level { color: #a07a00; }
+  .m-low      .m-level { color: #1e8449; }
+  .m-risk-tag { font-size: 10px; color: #999; margin-top: 3px; }
+
+  /* ── RECOMMENDATIONS ── */
+  .rec-list { display: flex; flex-direction: column; gap: 12px; }
+  .rec-row {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 14px 16px; background: #faf9f7;
+    border: 1px solid #e8e4de; border-radius: 6px;
+    transition: border-color 0.18s;
+  }
+  .rec-row:hover { border-color: #bbb; }
+  .rec-num {
+    font-family: 'Lora', serif; font-size: 22px; font-weight: 600;
+    color: #ddd; flex-shrink: 0; min-width: 28px; padding-top: 1px;
+  }
+  .rec-body {}
+  .rec-title { font-weight: 600; font-size: 14px; color: #1a1a1a; margin-bottom: 3px; }
+  .rec-desc  { font-size: 13px; color: #666; line-height: 1.55; }
+  .rec-scope { display: inline-block; margin-top: 6px; font-size: 11px; color: #888;
+    background: #eeebe6; padding: 2px 8px; border-radius: 3px; }
+
+  /* ── CONTROLS BOX ── */
+  .controls-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .control-box {
+    background: #faf9f7; border: 1px solid #e8e4de; border-radius: 6px;
+    padding: 14px 12px; text-align: center;
+  }
+  .control-box-num {
+    font-family: 'Lora', serif; font-size: 28px; font-weight: 600; line-height: 1;
+  }
+  .control-box-label { font-size: 11px; color: #999; margin-top: 5px; line-height: 1.4; }
+
+  /* ── WHAT THIS MEANS BOX ── */
+  .summary-box {
+    background: #fff8f7; border: 1.5px solid #f5c6c2;
+    border-radius: 8px; padding: 20px 22px; margin-bottom: 40px;
+  }
+  .summary-box-title {
+    font-family: 'Lora', serif; font-size: 15px; font-weight: 600;
+    color: #c0392b; margin-bottom: 8px;
+  }
+  .summary-box-text { font-size: 14px; color: #444; line-height: 1.7; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 52px; padding-top: 20px; border-top: 1px solid #ddd;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: #aaa; flex-wrap: wrap; gap: 8px;
+  }
+
+  /* responsive */
+  @media (max-width: 820px) {
+    .two-col, .three-col { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .page { padding: 28px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="report-label">Security Risk Assessment</div>
+        <h1>DHI Academic Portal</h1>
+      </div>
+      <div class="header-meta">
+        Prepared by: T Mohammed Jazeel<br>
+        Date: May 2026<br>
+        <span class="alert-pill">⚠ Action Required</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAIN ENGLISH SUMMARY -->
+  <div class="summary-box">
+    <div class="summary-box-title">What does this mean in plain terms?</div>
+    <div class="summary-box-text">
+      The DHI portal currently lets teachers and students use the same computers. If a teacher saves their password in the browser, a student can easily open the teacher account and change attendance records or marks — with no warning or detection. <strong>2 out of 3 risks identified are Critical</strong>, meaning this can happen right now with no technical skill required.
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="section-label">At a glance</div>
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-num slate">3</div>
+      <div class="kpi-title">Total Risks Found</div>
+      <div class="kpi-note">In the portal login system</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num red">2</div>
+      <div class="kpi-title">Critical Risks</div>
+      <div class="kpi-note">Need fixing immediately</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num orange">1</div>
+      <div class="kpi-title">High Risk</div>
+      <div class="kpi-note">Fix as soon as possible</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num gray">0</div>
+      <div class="kpi-title">Fully Protected</div>
+      <div class="kpi-note">None of the risks are covered</div>
+    </div>
+  </div>
+
+  <!-- RISK REGISTER TABLE -->
+  <div class="section-label">Risk register</div>
+  <div class="card" style="margin-bottom: 40px;">
+    <table class="risk-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>What could go wrong</th>
+          <th>Why it can happen</th>
+          <th>How bad</th>
+          <th>How likely</th>
+          <th>Risk level</th>
+          <th>Current protection</th>
+          <th>What to do</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="risk-id">R1</span></td>
+          <td>
+            <span class="asset-tag">Teacher Portal</span><br>
+            <span style="color:#1a1a1a; font-size:13px; line-height:1.5; display:block; margin-top:5px;">A student opens a teacher's account using a saved browser password</span>
+          </td>
+          <td>Passwords saved in shared lab computers</td>
+          <td><span class="badge critical">High</span></td>
+          <td><span class="badge critical">High</span></td>
+          <td><span class="badge critical">Critical</span></td>
+          <td style="color:#c0392b; font-size:12px;">Password only — no extra check</td>
+          <td style="font-size:12px; color:#333;">Add a second login step (MFA)</td>
+        </tr>
+        <tr>
+          <td><span class="risk-id">R2</span></td>
+          <td>
+            <span class="asset-tag">Attendance System</span><br>
+            <span style="color:#1a1a1a; font-size:13px; line-height:1.5; display:block; margin-top:5px;">Someone changes student attendance without being caught</span>
+          </td>
+          <td>No log of who made changes or when</td>
+          <td><span class="badge critical">High</span></td>
+          <td><span class="badge critical">High</span></td>
+          <td><span class="badge critical">Critical</span></td>
+          <td style="color:#c0392b; font-size:12px;">Nothing — no logging at all</td>
+          <td style="font-size:12px; color:#333;">Record every change with date, time, and user</td>
+        </tr>
+        <tr>
+          <td><span class="risk-id">R3</span></td>
+          <td>
+            <span class="asset-tag">Marks Database</span><br>
+            <span style="color:#1a1a1a; font-size:13px; line-height:1.5; display:block; margin-top:5px;">Student marks are changed by someone who shouldn't have access</span>
+          </td>
+          <td>Weak password — no role restrictions</td>
+          <td><span class="badge high">High</span></td>
+          <td><span class="badge medium">Medium</span></td>
+          <td><span class="badge high">High</span></td>
+          <td style="color:#d35400; font-size:12px;">Password only</td>
+          <td style="font-size:12px; color:#333;">Only teachers can edit marks (RBAC)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="section-label">Visualised</div>
+  <div class="three-col">
+
+    <!-- Donut -->
+    <div class="card">
+      <div class="card-title">Risk Breakdown</div>
+      <div class="donut-wrap">
+        <svg width="100" height="100" viewBox="0 0 100 100" style="flex-shrink:0;">
+          <!-- track -->
+          <circle cx="50" cy="50" r="36" fill="none" stroke="#eeebe6" stroke-width="14"/>
+          <!-- critical: 2/3 = 240° → dasharray = 2/3 * 2πr = 2/3 * 226.2 = 150.8 -->
+          <circle cx="50" cy="50" r="36" fill="none" stroke="#e74c3c" stroke-width="14"
+            stroke-dasharray="150.8 75.4" stroke-dashoffset="56.5"
+            stroke-linecap="butt"/>
+          <!-- high: 1/3 -->
+          <circle cx="50" cy="50" r="36" fill="none" stroke="#e67e22" stroke-width="14"
+            stroke-dasharray="75.4 150.8" stroke-dashoffset="206.3"
+            stroke-linecap="butt"/>
+          <text x="50" y="46" text-anchor="middle" fill="#1a1a1a" font-family="Lora,serif" font-size="18" font-weight="600">3</text>
+          <text x="50" y="60" text-anchor="middle" fill="#999" font-family="Source Sans 3,sans-serif" font-size="9" letter-spacing="1">RISKS</text>
+        </svg>
+        <div class="legend-list">
+          <div class="legend-row">
+            <div class="legend-color" style="background:#e74c3c;"></div>
+            <span class="legend-text">Critical</span>
+            <span class="legend-count">2</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-color" style="background:#e67e22;"></div>
+            <span class="legend-text">High</span>
+            <span class="legend-count">1</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-color" style="background:#f1c40f;"></div>
+            <span class="legend-text">Medium</span>
+            <span class="legend-count">0</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-color" style="background:#2ecc71;"></div>
+            <span class="legend-text">Low</span>
+            <span class="legend-count">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar: impact by asset -->
+    <div class="card">
+      <div class="card-title">Impact Level per Asset</div>
+      <div class="bar-list">
+        <div class="bar-item">
+          <div class="bar-top">
+            <span class="bar-top-label">Teacher Portal</span>
+            <span class="bar-top-val" style="color:#e74c3c;">Critical</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:100%; background:#e74c3c;"></div>
+          </div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-top">
+            <span class="bar-top-label">Attendance System</span>
+            <span class="bar-top-val" style="color:#e74c3c;">Critical</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:100%; background:#e74c3c; animation-delay:.12s"></div>
+          </div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-top">
+            <span class="bar-top-label">Marks Database</span>
+            <span class="bar-top-val" style="color:#e67e22;">High</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:68%; background:#e67e22; animation-delay:.24s"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Matrix -->
+    <div class="card">
+      <div class="card-title">Risk Heat Map</div>
+      <div class="matrix-grid">
+        <!-- header row -->
+        <div></div>
+        <div class="m-head">Low<br>chance</div>
+        <div class="m-head">Medium<br>chance</div>
+        <div class="m-head">High<br>chance</div>
+        <!-- High impact -->
+        <div class="m-label" style="font-size:11px; writing-mode:horizontal-tb; text-align:right; padding-right:6px; color:#888;">High<br>impact</div>
+        <div class="m-cell m-high"><span class="m-level">High</span></div>
+        <div class="m-cell m-high"><span class="m-level">High</span></div>
+        <div class="m-cell m-critical"><span class="m-level">Critical</span><span class="m-risk-tag">R1 · R2</span></div>
+        <!-- Med impact -->
+        <div class="m-label" style="font-size:11px; text-align:right; padding-right:6px; color:#888;">Med<br>impact</div>
+        <div class="m-cell m-low"><span class="m-level">Low</span></div>
+        <div class="m-cell m-medium"><span class="m-level">Medium</span></div>
+        <div class="m-cell m-high"><span class="m-level">High</span><span class="m-risk-tag">R3</span></div>
+        <!-- Low impact -->
+        <div class="m-label" style="font-size:11px; text-align:right; padding-right:6px; color:#888;">Low<br>impact</div>
+        <div class="m-cell m-low"><span class="m-level">Low</span></div>
+        <div class="m-cell m-low"><span class="m-level">Low</span></div>
+        <div class="m-cell m-medium"><span class="m-level">Medium</span></div>
+      </div>
+      <div style="margin-top:12px; font-size:12px; color:#888; line-height:1.6;">
+        R1 and R2 are in the worst possible position — high impact <em>and</em> high chance of happening.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="section-label">What needs to be done</div>
+  <div class="two-col">
+    <div>
+      <div class="rec-list">
+        <div class="rec-row">
+          <div class="rec-num">01</div>
+          <div class="rec-body">
+            <div class="rec-title">Add a second login step (MFA)</div>
+            <div class="rec-desc">Even if a password is stolen or seen, the attacker still can't log in without a one-time code sent to the teacher's phone.</div>
+            <span class="rec-scope">Fixes: R1, R2</span>
+          </div>
+        </div>
+        <div class="rec-row">
+          <div class="rec-num">02</div>
+          <div class="rec-body">
+            <div class="rec-title">Log every change in attendance and marks</div>
+            <div class="rec-desc">Every edit should record who made it, when, and from which device. This makes tampering visible and traceable.</div>
+            <span class="rec-scope">Fixes: R2</span>
+          </div>
+        </div>
+        <div class="rec-row">
+          <div class="rec-num">03</div>
+          <div class="rec-body">
+            <div class="rec-title">Only teachers can edit — students can only view</div>
+            <div class="rec-desc">Set up role-based permissions so that students physically cannot modify any records, even if they somehow access an account.</div>
+            <span class="rec-scope">Fixes: R3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="rec-list">
+        <div class="rec-row">
+          <div class="rec-num">04</div>
+          <div class="rec-body">
+            <div class="rec-title">Auto logout after 15 minutes of no activity</div>
+            <div class="rec-desc">On shared lab computers, a teacher who forgets to log out leaves their account open. Auto-timeout closes it automatically.</div>
+            <span class="rec-scope">Fixes: R1</span>
+          </div>
+        </div>
+        <div class="rec-row">
+          <div class="rec-num">05</div>
+          <div class="rec-body">
+            <div class="rec-title">Block the browser from saving passwords</div>
+            <div class="rec-desc">The login form should be set to prevent browsers from offering to save the password. Lab computers should also be configured to block saved credentials.</div>
+            <span class="rec-scope">Fixes: R1</span>
+          </div>
+        </div>
+        <div class="rec-row">
+          <div class="rec-num">06</div>
+          <div class="rec-body">
+            <div class="rec-title">Require strong, regularly changed passwords</div>
+            <div class="rec-desc">Passwords should be at least 10 characters and changed every 3 months. Weak passwords are easy to guess once a pattern is spotted.</div>
+            <span class="rec-scope">Fixes: R3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>DHI Academic Portal · Risk Assessment · May 2026</div>
+    <div>Prepared by T Mohammed Jazeel</div>
+  </footer>
+
+</div>
+</body>
+</html>
